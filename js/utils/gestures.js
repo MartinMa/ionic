@@ -305,6 +305,15 @@
             count_touches = sourceEventType.match(/up/) ? 0 : 1;
           }
 
+          // kitkat fix for touchcancel events http://updates.html5rocks.com/2014/05/A-More-Compatible-Smoother-Touch
+          // Only do this if we're not on crosswalk
+          if (sourceEventType === 'touchstart' &&
+              ionic.Platform.isAndroid() &&
+              ionic.Platform.version() === 4.4 &&
+              !ionic.Platform.isCrosswalk()) {
+            ev.preventDefault();
+          }
+
           // if we are in a end event, but when we remove one touch and
           // we still have enough, set eventType to move
           if(count_touches > 0 && eventType == ionic.Gestures.EVENT_END) {
@@ -1171,8 +1180,7 @@
 
       } else if (!this.preventedFirstMove && ev.srcEvent.type == 'touchmove') {
         // Prevent gestures that are not intended for this event handler from firing subsequent times
-        if (inst.options.prevent_default_directions.length > 0
-            && inst.options.prevent_default_directions.indexOf(ev.direction) != -1) {
+        if (inst.options.prevent_default_directions.indexOf(ev.direction) != -1) {
           ev.srcEvent.preventDefault();
         }
         this.preventedFirstMove = true;
