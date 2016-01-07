@@ -279,18 +279,29 @@ GESTURE_DIRECTIVES.forEach(function(name) {
 
 
 function gestureDirective(directiveName) {
-  return ['$ionicGesture', '$parse', function($ionicGesture, $parse) {
+  return ['$ionicGesture', '$parse', '$rootScope', function($ionicGesture, $parse, $rootScope) {
     var eventType = directiveName.substr(2).toLowerCase();
 
     return function(scope, element, attr) {
       var fn = $parse( attr[directiveName] );
 
+      // For events that might fire synchronously during DOM manipulation
+      // we need to execute their event handlers asynchronously using $evalAsync,
+      // so that they are not executed in an inconsistent state.
       var listener = function(ev) {
-        scope.$apply(function() {
-          fn(scope, {
-            $event: ev
+        if($rootScope.$$phase) {
+          scope.$evalAsync(function() {
+            fn(scope, {
+              $event: ev
+            });
           });
-        });
+        } else {
+          scope.$apply(function() {
+            fn(scope, {
+              $event: ev
+            });
+          });
+        }
       };
 
       var gesture = $ionicGesture.on(eventType, listener, element);
