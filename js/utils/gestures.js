@@ -279,7 +279,6 @@
           enable_detect = false;
         }
 
-
         // we are in a touch event, set the touch triggered bool to true,
         // this for the conflicts that may occur on ios and android
         if(sourceEventType.match(/touch|pointer/)) {
