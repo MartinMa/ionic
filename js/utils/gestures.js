@@ -774,6 +774,18 @@
       // instance options
       var inst_options = this.current.inst.options;
 
+      // kitkat fix for touchcancel events http://updates.html5rocks.com/2014/05/A-More-Compatible-Smoother-Touch
+      // Only do this if we're not on crosswalk
+      if (eventData.eventType === 'start' &&
+          eventData.pointerType === 'touch' &&
+          (!inst_options.prevent_default_directions ||
+           inst_options.prevent_default_directions.length === 0) &&
+          ionic.Platform.isAndroid() &&
+          ionic.Platform.version() === 4.4 &&
+          !ionic.Platform.isCrosswalk()) {
+        eventData.srcEvent.preventDefault();
+      }
+
       // call ionic.Gestures.gesture handlers
       for(var g = 0, len = this.gestures.length; g < len; g++) {
         var gesture = this.gestures[g];
